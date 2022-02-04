@@ -63,6 +63,9 @@ class RegisterImpl: public AbstractRegisterImpl {
   inline VMReg as_VMReg();
 
   // accessors
+#if defined(__clang_major__) && (__clang_major__ >= 13)
+  NOINLINE
+#endif
   int   encoding() const                         { assert(is_valid(), "invalid register"); return (intptr_t)this; }
   bool  is_valid() const                         { return 0 <= (intptr_t)this && (intptr_t)this < number_of_registers; }
   bool  has_byte_register() const                { return 0 <= (intptr_t)this && (intptr_t)this < number_of_byte_registers; }
@@ -118,6 +121,9 @@ class FloatRegisterImpl: public AbstractRegisterImpl {
   FloatRegister successor() const                          { return as_FloatRegister(encoding() + 1); }
 
   // accessors
+#if defined(__clang_major__) && (__clang_major__ >= 13)
+  NOINLINE
+#endif
   int   encoding() const                          { assert(is_valid(), "invalid register"); return (intptr_t)this; }
   bool  is_valid() const                          { return 0 <= (intptr_t)this && (intptr_t)this < number_of_registers; }
   const char* name() const;
@@ -157,6 +163,9 @@ class XMMRegisterImpl: public AbstractRegisterImpl {
   XMMRegister successor() const                          { return as_XMMRegister(encoding() + 1); }
 
   // accessors
+#if defined(__clang_major__) && (__clang_major__ >= 13)
+  NOINLINE
+#endif
   int   encoding() const                          { assert(is_valid(), "invalid register (%d)", (int)(intptr_t)this ); return (intptr_t)this; }
   bool  is_valid() const                          { return 0 <= (intptr_t)this && (intptr_t)this < number_of_registers; }
   const char* name() const;
@@ -232,6 +241,9 @@ public:
   KRegister successor() const                          { return as_KRegister(encoding() + 1); }
 
   // accessors
+#if defined(__clang_major__) && (__clang_major__ >= 13)
+  NOINLINE
+#endif
   int   encoding() const                          { assert(is_valid(), "invalid register (%d)", (int)(intptr_t)this); return (intptr_t)this; }
   bool  is_valid() const                          { return 0 <= (intptr_t)this && (intptr_t)this < number_of_registers; }
   const char* name() const;

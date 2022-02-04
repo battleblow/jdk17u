@@ -207,6 +207,9 @@ class LIR_OprDesc: public CompilationResourceObj {
   friend class LIR_OprFact;
 
   // Conversion
+#if defined(__clang_major__) && (__clang_major__ >= 13)
+  NOINLINE
+#endif
   intptr_t value() const                         { return (intptr_t) this; }
 
   bool check_value_mask(intptr_t mask, intptr_t masked_value) const {

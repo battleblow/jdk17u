@@ -37,6 +37,9 @@ class Metadata : public MetaspaceObj {
   NOT_PRODUCT(Metadata() : _valid(0) {})
   NOT_PRODUCT(bool is_valid() const { return _valid == 0; })
 
+#if defined(__clang_major__) && (__clang_major__ >= 13)
+  NOINLINE
+#endif
   int identity_hash()                { return (int)(uintptr_t)this; }
 
   virtual bool is_metadata()           const { return true; }
