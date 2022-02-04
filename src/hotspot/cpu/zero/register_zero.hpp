@@ -57,6 +57,9 @@ class RegisterImpl : public AbstractRegisterImpl {
   }
 
   // accessors
+#if defined(__clang_major__) && (__clang_major__ >= 13)
+  NOINLINE
+#endif
   int encoding() const {
     assert(is_valid(), "invalid register");
     return (intptr_t)this;
@@ -92,6 +95,9 @@ class FloatRegisterImpl : public AbstractRegisterImpl {
   }
 
   // accessors
+#if defined(__clang_major__) && (__clang_major__ >= 13)
+  NOINLINE
+#endif
   int encoding() const {
     assert(is_valid(), "invalid register");
     return (intptr_t)this;
