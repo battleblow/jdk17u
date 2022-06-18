@@ -6381,7 +6381,7 @@ class StubGenerator: public StubCodeGenerator {
     return start;
   }
 
-#if defined(LINUX) || defined(_ALLBSD_SOURCE)
+#if defined(LINUX) || defined(_BSDONLY_SOURCE)
 
   // ARMv8.1 LSE versions of the atomic stubs used by Atomic::PlatformXX.
   //
@@ -6562,7 +6562,7 @@ class StubGenerator: public StubCodeGenerator {
 
     ICache::invalidate_range(first_entry, __ pc() - first_entry);
   }
-#endif // LINUX
+#endif // LINUX || _BSDONLY_SOURCE
 
   // Continuation point for throwing of implicit exceptions that are
   // not handled in the current activation. Fabricates an exception
@@ -7691,11 +7691,11 @@ class StubGenerator: public StubCodeGenerator {
 
     StubRoutines::aarch64::_spin_wait = generate_spin_wait();
 
-#if defined(LINUX) || defined(_ALLBSD_SOURCE)
+#if defined(LINUX) || defined(_BSDONLY_SOURCE)
 
     generate_atomic_entry_points();
 
-#endif // LINUX || _ALLBSD_SOURCE
+#endif // LINUX || _BSDONLY_SOURCE
 
     StubRoutines::aarch64::set_completed();
   }
@@ -7719,7 +7719,7 @@ void StubGenerator_generate(CodeBuffer* code, bool all) {
 }
 
 
-#if defined(LINUX) || defined(_ALLBSD_SOURCE)
+#if defined(LINUX) || defined(_BSDONLY_SOURCE)
 
 // Define pointers to atomic stubs and initialize them to point to the
 // code in atomic_aarch64.S.
@@ -7747,4 +7747,4 @@ DEFAULT_ATOMIC_OP(cmpxchg, 8, _seq_cst)
 
 #undef DEFAULT_ATOMIC_OP
 
-#endif // LINUX || _ALLBSD_SOURCE
+#endif // LINUX || _BSDONLY_SOURCE
