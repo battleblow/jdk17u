@@ -1266,6 +1266,7 @@ void os::Posix::init(void) {
 
   // Check for pthread_condattr_setclock support.
 
+#if !defined(__NetBSD__)
   // libpthread is already loaded.
   int (*condattr_setclock_func)(pthread_condattr_t*, clockid_t) =
     (int (*)(pthread_condattr_t*, clockid_t))dlsym(RTLD_DEFAULT,
@@ -1273,6 +1274,7 @@ void os::Posix::init(void) {
   if (condattr_setclock_func != NULL) {
     _pthread_condattr_setclock = condattr_setclock_func;
   }
+#endif
 
   // Now do general initialization.
 
