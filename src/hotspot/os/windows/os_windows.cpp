@@ -22,8 +22,7 @@
  *
  */
 
-// Must be at least Windows Vista or Server 2008 to use InitOnceExecuteOnce
-#define _WIN32_WINNT 0x0600
+// API level must be at least Windows Vista or Server 2008 to use InitOnceExecuteOnce
 
 // no precompiled headers
 #include "jvm.h"
@@ -3462,9 +3461,6 @@ char* os::pd_reserve_memory_special(size_t bytes, size_t alignment, size_t page_
 bool os::pd_release_memory_special(char* base, size_t bytes) {
   assert(base != NULL, "Sanity check");
   return pd_release_memory(base, bytes);
-}
-
-void os::print_statistics() {
 }
 
 static void warn_fail_commit_memory(char* addr, size_t bytes, bool exec) {
