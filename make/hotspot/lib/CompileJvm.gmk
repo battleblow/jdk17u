@@ -96,7 +96,7 @@ DISABLED_WARNINGS_clang := tautological-compare \
     delete-non-virtual-dtor missing-braces char-subscripts \
     ignored-qualifiers missing-field-initializers mismatched-tags \
     unnamed-type-template-args shift-negative-value format-nonliteral \
-    unused-but-set-parameter
+    unused-but-set-parameter bitwise-instead-of-logical
 
 ifneq (,$(filter 1%,$(CC_VERSION_NUMBER)))
   DISABLED_WARNINGS_clang += misleading-indentation
