@@ -114,7 +114,7 @@ AC_DEFUN([FLAGS_SETUP_LDFLAGS_HELPER],
       OS_LDFLAGS="-mmacosx-version-min=$MACOSX_VERSION_MIN"
     fi
 
-    # On OpenBSD check to see if ld requires -z wxneeded
+    # On OpenBSD check to see if ld requires -z wxneeded or -z nobtcfi
     if test "x$OPENJDK_TARGET_OS_ENV" = xbsd.openbsd; then
       AC_MSG_CHECKING([if ld requires -z wxneeded])
       PUSHED_LDFLAGS="$LDFLAGS"
@@ -124,6 +124,27 @@ AC_DEFUN([FLAGS_SETUP_LDFLAGS_HELPER],
             if $READELF -l conftest$ac_exeext | $GREP WXNEED > /dev/null; then
               AC_MSG_RESULT([yes])
               OS_LDFLAGS="-Wl,-z,wxneeded"
+            else
+              AC_MSG_RESULT([no])
+            fi
+          ],
+          [
+            AC_MSG_RESULT([no])
+          ],
+          [
+            AC_MSG_RESULT([no])
+          ]
+      )
+      LDFLAGS="$PUSHED_LDFLAGS"
+
+      AC_MSG_CHECKING([if ld requires -z nobtcfi])
+      PUSHED_LDFLAGS="$LDFLAGS"
+      LDFLAGS="$LDFLAGS -Wl,-z,nobtcfi"
+      AC_LINK_IFELSE([AC_LANG_SOURCE([[int main() { }]])],
+          [
+            if $READELF -l conftest$ac_exeext | $GREP NOBTCF > /dev/null; then
+              AC_MSG_RESULT([yes])
+              OS_LDFLAGS="$OS_LDFLAGS -Wl,-z,nobtcfi"
             else
               AC_MSG_RESULT([no])
             fi
