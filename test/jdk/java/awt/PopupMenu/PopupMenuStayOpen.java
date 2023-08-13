@@ -24,7 +24,7 @@
 /*
   @test
   @bug 4791953
-  @requires (os.family == "linux" | os.family == "mac")
+  @requires (os.family == "linux" | os.family == "mac" | os.family == "freebsd" | os.family == "netbsd" | os.family == "openbsd")
   @summary Checks that popup menu stay open after a triggering click.
   @key headful
   @run main/othervm -Dsun.java2d.uiScale=1 PopupMenuStayOpen
