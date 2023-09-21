@@ -30,11 +30,11 @@
 #define SUPPORTS_NATIVE_CX8
 #endif
 
+#include <ffi.h>
+
 #ifndef FFI_GO_CLOSURES
 #define FFI_GO_CLOSURES 0
 #endif
-
-#include <ffi.h>
 
 // Indicates whether the C calling conventions require that
 // 32-bit integer argument values are extended to 64 bits.
