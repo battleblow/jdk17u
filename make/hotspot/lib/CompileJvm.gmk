@@ -103,7 +103,7 @@ ifneq (,$(filter 1%,$(CC_VERSION_NUMBER)))
 endif
 
 ifeq ($(call check-jvm-feature, zero), true)
-  DISABLED_WARNINGS_clang += switch
+  DISABLED_WARNINGS_clang += switch macro-redefined
 endif
 
 DISABLED_WARNINGS_xlc := tautological-compare shift-negative-value
