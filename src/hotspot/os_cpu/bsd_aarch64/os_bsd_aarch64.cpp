@@ -962,6 +962,7 @@ void os::print_context(outputStream *st, const void *context) {
 #endif
   }
   st->cr();
+}
 
 void os::print_tos_pc(outputStream *st, const void *context) {
   if (context == NULL) return;
