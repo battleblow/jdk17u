@@ -252,9 +252,6 @@ Java_java_lang_ProcessHandleImpl_waitForProcessExit0(JNIEnv* env,
             return status;
         }
      } else {
-#if defined(__OpenBSD__) && OpenBSD < 202304
-        return os_waitForProcessExitNoReap(pid);
-#else
         /*
          * Wait for the child process to exit without reaping the exitValue.
          * waitid() is standard on all POSIX platforms.
@@ -286,7 +283,6 @@ Java_java_lang_ProcessHandleImpl_waitForProcessExit0(JNIEnv* env,
               */
              return siginfo.si_status;
         }
-#endif
     }
 }
 
