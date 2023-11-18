@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2018, 2021, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2023, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2023, Rivos Inc. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -19,29 +20,20 @@
  * Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
  * or visit www.oracle.com if you need additional information or have any
  * questions.
+ *
  */
 
-/*
- * @test
- * @bug 8186211
- * @summary Test CONSTANT_Dynamic where the BSM is invoked via a REF_newInvokeSpecial.
- * @requires vm.flagless
- * @modules java.base/jdk.internal.misc
- * @library /test/lib
- * @compile CondyNewInvokeSpecial.jasm
- * @run driver CondyNewInvokeSpecialTest
- */
+#ifndef OS_LINUX_RISCV_HWPROBE_LINUX_HPP
+#define OS_LINUX_RISCV_HWPROBE_LINUX_HPP
 
-import jdk.test.lib.process.ProcessTools;
-import jdk.test.lib.process.OutputAnalyzer;
-import jdk.test.lib.compiler.InMemoryJavaCompiler;
+#include "memory/allStatic.hpp"
+#include "runtime/vm_version.hpp"
+#include "utilities/growableArray.hpp"
 
-public class CondyNewInvokeSpecialTest {
-    public static void main(String args[]) throws Throwable {
-        ProcessBuilder pb = ProcessTools.createJavaProcessBuilder("-Xverify:all",
-                                                                  "CondyNewInvokeSpecial");
-        OutputAnalyzer oa = new OutputAnalyzer(pb.start());
-        oa.shouldContain("In CondyNewInvokeSpecial <init> method");
-        oa.shouldHaveExitValue(0);
-    }
-}
+class RiscvHwprobe: public AllStatic {
+  static void add_features_from_query_result();
+ public:
+  static bool probe_features();
+};
+
+#endif // OS_LINUX_RISCV_HWPROBE_LINUX_HPP
