@@ -146,7 +146,7 @@ $(eval $(call SetupJdkLibrary, BUILD_LIBAWT, \
     DISABLED_WARNINGS_gcc := sign-compare unused-result maybe-uninitialized \
         format-nonliteral parentheses unused-value unused-function, \
     DISABLED_WARNINGS_clang := logical-op-parentheses extern-initializer \
-        sign-compare format-nonliteral, \
+        sign-compare format-nonliteral deprecated-non-prototype, \
     DISABLED_WARNINGS_microsoft := 4244 4267 4996, \
     LDFLAGS := $(LDFLAGS_JDKLIB) $(call SET_SHARED_LIBRARY_ORIGIN), \
     LDFLAGS_macosx := -L$(INSTALL_LIBRARIES_HERE), \
