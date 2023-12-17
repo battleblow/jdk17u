@@ -60,7 +60,11 @@ typedef struct {
 /*
  * Signal to unblock thread
  */
+#ifdef __OpenBSD__
+#define WAKEUP_SIGNAL (SIGIO)
+#else
 #define WAKEUP_SIGNAL (SIGRTMAX - 2)
+#endif
 
 /*
  * fdTable holds one entry per file descriptor, up to a certain
