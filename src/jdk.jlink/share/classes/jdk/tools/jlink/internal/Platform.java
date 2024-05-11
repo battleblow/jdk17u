@@ -36,6 +36,7 @@ public record Platform(OperatingSystem os, Architecture arch) {
         LINUX,
         MACOS,
         AIX,
+        BSD,
         UNKNOWN;
     }
 
@@ -108,6 +109,10 @@ public record Platform(OperatingSystem os, Architecture arch) {
             case "aix" -> OperatingSystem.AIX;
             default    -> OperatingSystem.UNKNOWN;
         };
+        if (os == OperatingSystem.UNKNOWN &&
+                System.getProperty("os.name").toLowerCase().endsWith("bsd")) {
+            os = OperatingSystem.BSD;
+        }
         return os;
     }
 
