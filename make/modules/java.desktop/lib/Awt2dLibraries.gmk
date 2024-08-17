@@ -253,6 +253,7 @@ ifeq ($(call isTargetOs, windows macosx), false)
             format-security int-to-pointer-cast parentheses \
             implicit-fallthrough undef unused-function, \
         DISABLED_WARNINGS_clang := parentheses format undef \
+            typedef-redefinition \
             logical-op-parentheses format-nonliteral int-conversion, \
         LDFLAGS := $(LDFLAGS_JDKLIB) \
             $(call SET_SHARED_LIBRARY_ORIGIN) \
