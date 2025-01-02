@@ -141,6 +141,11 @@ public class SunMiscSignalTest {
                 {"INFO", IsSupported.YES, CanRegister.YES, CanRaise.YES, invokedXrs},
         };
 
+        Object[][] posixBSDSignals = {
+                {"BUS",  IsSupported.YES, CanRegister.YES, CanRaise.YES, invokedXrs},
+                {"INFO", IsSupported.YES, CanRegister.YES, CanRaise.YES, invokedXrs},
+        };
+
         Object[][] windowsSignals = {
                 {"HUP",  IsSupported.NO, CanRegister.NO, CanRaise.NO, Invoked.NO},
                 {"QUIT", IsSupported.NO, CanRegister.NO, CanRaise.NO, Invoked.NO},
@@ -165,7 +170,8 @@ public class SunMiscSignalTest {
         };
 
         Object[][] combinedPosixSignals = concatArrays(posixSignals,
-                                                       (Platform.isOSX() ? posixOSXSignals : posixNonOSXSignals));
+                                                       (Platform.isOSX() ? posixOSXSignals :
+                                                            (Platform.isBSD() ? posixBSDSignals : posixNonOSXSignals)));
         return concatArrays(commonSignals, (Platform.isWindows() ? windowsSignals : combinedPosixSignals));
     }
 
