@@ -858,7 +858,7 @@ BUILD_HOTSPOT_JTREG_LIBRARIES_CFLAGS_libVirtualMachine09agent00 := $(NSK_AOD_INC
 ################################################################################
 
 # Platform specific setup
-ifeq ($(call isTargetOs, linux), true)
+ifeq ($(call isTargetOs, linux bsd), true)
     BUILD_HOTSPOT_JTREG_LIBRARIES_LDFLAGS_libtest-rw := -z noexecstack
     BUILD_HOTSPOT_JTREG_LIBRARIES_LDFLAGS_libtest-rwx := -z execstack
     BUILD_HOTSPOT_JTREG_LIBRARIES_LIBS_libstepBreakPopReturn := $(PTHREAD)
@@ -873,15 +873,6 @@ ifeq ($(call isTargetOs, linux), true)
 else
   BUILD_HOTSPOT_JTREG_EXCLUDE += libtest-rw.c libtest-rwx.c \
       exeinvoke.c exestack-gap.c exestack-tls.c libAsyncGetCallTraceTest.cpp
-endif
-ifeq ($(OPENJDK_TARGET_OS),bsd)
-    BUILD_HOTSPOT_JTREG_EXECUTABLES_CFLAGS_exeFPRegs := $(PTHREAD)
-    BUILD_HOTSPOT_JTREG_LIBRARIES_LIBS_libstepBreakPopReturn := $(PTHREAD)
-    BUILD_HOTSPOT_JTREG_LIBRARIES_LIBS_libIndyRedefineClass := $(PTHREAD)
-    BUILD_HOTSPOT_JTREG_LIBRARIES_LIBS_libredefineClasses := $(PTHREAD)
-    BUILD_HOTSPOT_JTREG_EXECUTABLES_LIBS_exeinvoke := $(PTHREAD) -ljvm
-    BUILD_HOTSPOT_JTREG_EXECUTABLES_LIBS_exestack-gap := $(PTHREAD) -ljvm
-    BUILD_HOTSPOT_JTREG_EXECUTABLES_LIBS_exeFPRegs := $(PTHREAD) $(LIBDL)
 endif
 
 BUILD_HOTSPOT_JTREG_EXECUTABLES_LIBS_exesigtest := -ljvm
