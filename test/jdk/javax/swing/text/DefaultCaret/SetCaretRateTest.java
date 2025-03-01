@@ -1,12 +1,10 @@
 /*
- * Copyright (c) 2024 SAP SE. All rights reserved.
+ * Copyright (c) 2023, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 only, as
- * published by the Free Software Foundation.  Oracle designates this
- * particular file as subject to the "Classpath" exception as provided
- * by Oracle in the LICENSE file that accompanied this code.
+ * published by the Free Software Foundation.
  *
  * This code is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
@@ -23,15 +21,26 @@
  * questions.
  */
 
-#include <sun_awt_PlatformGraphicsInfo.h>
-#include "Devices.h"
+import javax.swing.text.Caret;
+import javax.swing.text.DefaultCaret;
 
 /*
- * Class:     sun_awt_PlatformGraphicsInfo
- * Method:    hasDisplays0
- * Signature: ()Z
+ * @test
+ * @bug 8301989
+ * @summary Test checks that there is no exception happens
+ *          when setting blink rate on a javax.swing.DefaultCaret that is not
+ *          associated with any text component
+ * @run main SetCaretRateTest
  */
-JNIEXPORT jboolean JNICALL
-Java_sun_awt_PlatformGraphicsInfo_hasDisplays0(JNIEnv *env, jclass thisClass) {
-    return CountMonitors() > 0 ? JNI_TRUE : JNI_FALSE;
+public class SetCaretRateTest {
+    public static void main(String[] args) {
+        Caret caret = new DefaultCaret();
+        caret.setBlinkRate(0);
+        caret.setBlinkRate(100);
+        caret.setBlinkRate(0);
+        caret = new DefaultCaret();
+        caret.setBlinkRate(100);
+        caret.setBlinkRate(0);
+        caret.setBlinkRate(100);
+    }
 }
