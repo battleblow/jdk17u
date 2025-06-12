@@ -1911,8 +1911,16 @@ bool os::remove_stack_guard_pages(char* addr, size_t size) {
 // function returns NULL to indicate failure.
 static char* anon_mmap(char* requested_addr, size_t bytes, bool exec) {
   // MAP_FIXED is intentionally left out, to leave existing mappings intact.
-  const int flags = MAP_PRIVATE | MAP_NORESERVE | MAP_ANONYMOUS
+  int flags = MAP_PRIVATE | MAP_NORESERVE | MAP_ANONYMOUS
       MACOS_ONLY(| (exec ? MAP_JIT : 0));
+
+#if defined(__FreeBSD__) && defined(MAP_EXCL)
+  // On FreeBSD we can use MAP_FIXED with MAP_EXCL to have mmap fail if any part of the
+  // requested region is already mapped.
+  if (requested_addr != nullptr) {
+    flags |= MAP_FIXED | MAP_EXCL;
+  }
+#endif
 
   // Map reserved/uncommitted pages PROT_NONE so we fail early if we
   // touch an uncommitted page. Otherwise, the read/write might
