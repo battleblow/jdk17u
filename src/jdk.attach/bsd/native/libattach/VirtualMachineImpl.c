@@ -49,6 +49,23 @@
   } while((_result == -1) && (errno == EINTR)); \
 } while(0)
 
+#if defined(__OpenBSD__)
+#define KERN_PROC_MIB  KERN_PROC
+#define KINFO_PROC_T   kinfo_proc
+#define KI_SIGIGNORE   p_sigignore
+#define KI_SIGCATCH    p_sigcatch
+#elif defined(__FreeBSD__)
+#define KERN_PROC_MIB  KERN_PROC
+#define KINFO_PROC_T   kinfo_proc
+#define KI_SIGIGNORE   ki_sigignore
+#define KI_SIGCATCH    ki_sigcatch
+#elif defined(__NetBSD__)
+#define KERN_PROC_MIB  KERN_PROC2
+#define KINFO_PROC_T   kinfo_proc2
+#define KI_SIGIGNORE   p_sigignore
+#define KI_SIGCATCH    p_sigcatch
+#endif
+
 #define ROOT_UID 0
 
 /*
@@ -125,10 +142,13 @@ JNIEXPORT void JNICALL Java_sun_tools_attach_VirtualMachineImpl_connect
 JNIEXPORT jboolean JNICALL Java_sun_tools_attach_VirtualMachineImpl_checkCatchesAndSendQuitTo
   (JNIEnv *env, jclass cls, jint pid, jboolean throwIfNotReady)
 {
-    int mib[] = { CTL_KERN, KERN_PROC, KERN_PROC_PID, (int)pid };
-
-    struct kinfo_proc kiproc;
-    size_t            kipsz = sizeof(struct kinfo_proc);
+    struct KINFO_PROC_T kiproc;
+    size_t            kipsz = sizeof(struct KINFO_PROC_T);
+#ifndef __FreeBSD__
+    int mib[] = {CTL_KERN, KERN_PROC_MIB, KERN_PROC_PID, (int)pid, (int)kipsz, 1};
+#else
+    int mib[] = { CTL_KERN, KERN_PROC_MIB, KERN_PROC_PID, (int)pid };
+#endif
 
    /*
     * Early in the lifetime of a JVM it has not yet initialized its signal handlers, in particular the QUIT
@@ -143,8 +163,8 @@ JNIEXPORT jboolean JNICALL Java_sun_tools_attach_VirtualMachineImpl_checkCatches
     */
 
     if (sysctl(mib, sizeof(mib) / sizeof(int), &kiproc, &kipsz, NULL, 0) == 0) {
-        const bool ignored = sigismember(&kiproc.ki_sigignore, SIGQUIT) != 0;
-        const bool caught  = sigismember(&kiproc.ki_sigcatch, SIGQUIT)  != 0;
+        const bool ignored = sigismember(&kiproc.KI_SIGIGNORE, SIGQUIT) != 0;
+        const bool caught  = sigismember(&kiproc.KI_SIGCATCH, SIGQUIT)  != 0;
 
         // note: obviously the masks could change between testing and signalling however this is not the
         // observed behavior of the current JVM implementation.
