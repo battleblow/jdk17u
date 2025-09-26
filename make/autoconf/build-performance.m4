@@ -84,7 +84,11 @@ AC_DEFUN([BPERF_CHECK_MEMORY_SIZE],
     FOUND_MEM=yes
   elif test -x /sbin/sysctl; then
     # Looks like a BSD system
-    MEMORY_SIZE=`/sbin/sysctl -n hw.physmem64 || /sbin/sysctl -n hw.physmem`
+    if test "x$OPENJDK_TARGET_OS_ENV" = xbsd.openbsd; then
+      MEMORY_SIZE=`/sbin/sysctl -n hw.physmem`
+    else
+      MEMORY_SIZE=`/sbin/sysctl -n hw.physmem64 || /sbin/sysctl -n hw.physmem`
+    fi
     MEMORY_SIZE=`expr $MEMORY_SIZE / 1024 / 1024`
     FOUND_MEM=yes
     if test "x$OPENJDK_TARGET_OS_ENV" = xbsd.openbsd; then
