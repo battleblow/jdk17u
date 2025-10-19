@@ -1850,7 +1850,7 @@ void JavaThread::check_special_condition_for_native_trans(JavaThread *thread) {
   assert(!thread->has_last_Java_frame() || thread->frame_anchor()->walkable(), "Unwalkable stack in native->Java transition");
 
   // Enable WXWrite: called directly from interpreter native wrapper.
-  MACOS_AARCH64_ONLY(ThreadWXEnable wx(WXWrite, thread));
+  BSD_AARCH64_ONLY(ThreadWXEnable wx(WXWrite, thread));
 
   SafepointMechanism::process_if_requested_with_exit_check(thread, false /* check asyncs */);
 

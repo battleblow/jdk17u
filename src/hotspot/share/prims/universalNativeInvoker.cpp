@@ -35,7 +35,7 @@ void ProgrammableInvoker::invoke_native(Stub stub, address buff, JavaThread* thr
   // We need WXExec because we are about to call a generated stub. Like in VM
   // entries, the thread state should be changed while we are still in WXWrite.
   // See JDK-8265292.
-  MACOS_AARCH64_ONLY(ThreadWXEnable wx(WXExec, thread));
+  BSD_AARCH64_ONLY(ThreadWXEnable wx(WXExec, thread));
   stub(buff);
 }
 

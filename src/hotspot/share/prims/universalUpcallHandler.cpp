@@ -152,7 +152,7 @@ void ProgrammableUpcallHandler::attach_thread_and_do_upcall(jobject rec, address
   JavaThread* thread = maybe_attach_and_get_thread(&should_detach);
 
   {
-    MACOS_AARCH64_ONLY(ThreadWXEnable wx(WXWrite, thread));
+    BSD_AARCH64_ONLY(ThreadWXEnable wx(WXWrite, thread));
     upcall_helper(thread, rec, buff);
   }
 
