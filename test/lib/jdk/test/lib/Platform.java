@@ -138,6 +138,10 @@ public class Platform {
         return osName.toLowerCase().endsWith("bsd");
     }
 
+    public static boolean isOpenBSD() {
+        return osName.toLowerCase().equals("openbsd");
+    }
+
     private static boolean isOs(String osname) {
         return osName.toLowerCase(ROOT).startsWith(osname.toLowerCase(ROOT));
     }
@@ -256,6 +260,8 @@ public class Platform {
             return false; // SA is not enabled.
         }
         if (isAix()) {
+            return false; // SA not implemented.
+        } else if (isOpenBSD()) {
             return false; // SA not implemented.
         } else if (isLinux()) {
             if (isS390x() || isARM()) {
