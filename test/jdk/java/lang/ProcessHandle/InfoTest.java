@@ -302,10 +302,13 @@ public class InfoTest {
                     Assert.assertTrue(command.endsWith(expected), "Command: expected: \'" +
                             expected + "\', actual: " + command);
 
-                    // Verify the command exists and is executable
-                    File exe = new File(command);
-                    Assert.assertTrue(exe.exists(), "command must exist: " + exe);
-                    Assert.assertTrue(exe.canExecute(), "command must be executable: " + exe);
+                    // OpenBSD's kernel does not preserve the full exe path at execution time
+                    if (!Platform.isOpenBSD()) {
+                        // Verify the command exists and is executable
+                        File exe = new File(command);
+                        Assert.assertTrue(exe.exists(), "command must exist: " + exe);
+                        Assert.assertTrue(exe.canExecute(), "command must be executable: " + exe);
+                    }
                 }
                 if (info.arguments().isPresent()) {
                     String[] args = info.arguments().get();
