@@ -31,6 +31,7 @@
 #include "prims/jniFastGetField.hpp"
 #include "prims/jvm_misc.hpp"
 #include "prims/jvmtiExport.hpp"
+#include "runtime/thread.inline.hpp"
 #include "runtime/safepoint.hpp"
 #include "runtime/threadWXSetters.inline.hpp"
 
