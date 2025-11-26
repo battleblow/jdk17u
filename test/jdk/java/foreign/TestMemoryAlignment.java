@@ -53,6 +53,12 @@ public class TestMemoryAlignment {
         try (ResourceScope scope = ResourceScope.newConfinedScope()) {
             MemorySegment segment = MemorySegment.allocateNative(aligned, scope);
             vh.set(segment, -42);
+
+            // Allocate another segment and fill it with data to
+            // check that the first segment is not overwritten
+            MemorySegment nextSegment = MemorySegment.allocateNative(aligned, scope);
+            vh.set(nextSegment, 0xffffff);
+
             int val = (int)vh.get(segment);
             assertEquals(val, -42);
         }
