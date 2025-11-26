@@ -98,7 +98,7 @@ public class NativeMemorySegmentImpl extends AbstractMemorySegmentImpl {
         }
         long alignedSize = alignmentBytes > MAX_MALLOC_ALIGN ?
                 bytesSize + (alignmentBytes - 1) :
-                bytesSize;
+                Math.max(bytesSize, alignmentBytes);
 
         nioAccess.reserveMemory(alignedSize, bytesSize);
 
