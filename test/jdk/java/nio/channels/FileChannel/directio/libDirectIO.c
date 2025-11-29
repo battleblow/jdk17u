@@ -52,7 +52,7 @@ JNIEXPORT void Java_DirectIOTest_flushFileCache(JNIEnv *env,
                                                 jclass cls,
                                                 jint file_size,
                                                 jint fd) {
-#ifdef __linux__
+#if defined(__linux__) || defined(__FreeBSD__)
     posix_fadvise(fd, 0, file_size, POSIX_FADV_DONTNEED);
 #endif
 }
