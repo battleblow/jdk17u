@@ -25,7 +25,7 @@
  * @test
  * @bug 5097241
  * @summary Tests the problem of time type conversion on XToolkit. The conversion should be unsigned.
- * @requires os.family == "linux"
+ * @requires (os.family == "linux" | os.family == "freebsd" | os.family == "netbsd" | os.family == "openbsd")
  * @key headful
  * @library /java/awt/regtesthelpers /test/lib
  * @build Util jtreg.SkippedException

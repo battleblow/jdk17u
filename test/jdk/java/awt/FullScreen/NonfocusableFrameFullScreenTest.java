@@ -35,7 +35,7 @@ import javax.swing.JPanel;
 /*
  * @test
  * @bug 6225472 6682536
- * @requires (os.family != "linux")
+ * @requires (os.family != "linux" & os.family != "freebsd" & os.family != "netbsd" & os.family != "openbsd")
  * @summary Tests that non-focusable Frame in full-screen mode overlaps the task bar.
  * @library /java/awt/regtesthelpers
  * @build PassFailJFrame

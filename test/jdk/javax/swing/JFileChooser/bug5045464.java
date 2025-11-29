@@ -24,7 +24,7 @@
 /*
  * @test
  * @bug 5045464
- * @requires (os.family == "linux")
+ * @requires (os.family == "linux" | os.family == "freebsd" | os.family == "netbsd" | os.family == "openbsd")
  * @summary Regression: GTK L&F, JFileChooser shows "null/" in folder list
  * @library /java/awt/regtesthelpers
  * @build PassFailJFrame

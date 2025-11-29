@@ -26,7 +26,7 @@
  * @bug 6240151
  * @key headful
  * @summary XToolkit: Dragging the List scrollbar initiates DnD
- * @requires os.family == "linux"
+ * @requires (os.family == "linux" | os.family == "freebsd" | os.family == "netbsd" | os.family == "openbsd")
  * @run main MouseDraggedOriginatedByScrollBarTest
 */
 

@@ -24,7 +24,7 @@
 /*
  * @test
  * @bug 6287895
- * @requires (os.family == "linux")
+ * @requires (os.family == "linux" | os.family == "freebsd" | os.family == "netbsd" | os.family == "openbsd")
  * @summary Test cursor and selected text incorrectly colored in TextField
  * @key headful
  * @run main SelectionAndCaretColor

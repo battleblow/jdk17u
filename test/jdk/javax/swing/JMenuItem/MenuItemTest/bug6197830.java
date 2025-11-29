@@ -24,7 +24,7 @@
 /*
  * @test
  * @bug 6197830
- * @requires (os.family == "linux")
+ * @requires (os.family == "linux" | os.family == "freebsd" | os.family == "netbsd" | os.family == "openbsd")
  * @summary Fix for 4729669 does not work on Motif and GTK look and feels
  * @library /java/awt/regtesthelpers
  * @build PassFailJFrame
