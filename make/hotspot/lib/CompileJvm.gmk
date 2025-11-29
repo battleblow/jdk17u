@@ -86,7 +86,8 @@ DISABLED_WARNINGS_gcc := array-bounds comment delete-non-virtual-dtor \
     shift-negative-value unknown-pragmas strict-overflow
 
 DISABLED_WARNINGS_clang := ignored-qualifiers sometimes-uninitialized \
-    missing-braces delete-non-abstract-non-virtual-dtor unknown-pragmas
+    missing-braces delete-non-abstract-non-virtual-dtor unknown-pragmas \
+    misleading-indentation
 
 ifneq ($(DEBUG_LEVEL), release)
   # Assert macro gives warning
