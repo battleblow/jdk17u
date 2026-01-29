@@ -30,7 +30,7 @@
 #else
 #include <errno.h>
 #include <string.h>
-#if defined(__APPLE__) || defined(__OpenBSD__)
+#if defined(_ALLBSD_SOURCE)
 #include <sys/param.h>
 #include <sys/mount.h>
 #else
