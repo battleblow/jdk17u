@@ -1,0 +1,235 @@
+#
+# Copyright (c) 2025, Oracle and/or its affiliates. All rights reserved.
+# DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+#
+# This code is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License version 2 only, as
+# published by the Free Software Foundation.  Oracle designates this
+# particular file as subject to the "Classpath" exception as provided
+# by Oracle in the LICENSE file that accompanied this code.
+#
+# This code is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+# FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# version 2 for more details (a copy is included in the LICENSE file that
+# accompanied this code).
+#
+# You should have received a copy of the GNU General Public License version
+# 2 along with this work; if not, write to the Free Software Foundation,
+# Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+# Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
+# or visit www.oracle.com if you need additional information or have any
+# questions.
+#
+
+name: 'Run tests in VM (FreeBSD)'
+
+on:
+  workflow_call:
+    inputs:
+      platform:
+        required: true
+        type: string
+      runs-on:
+        required: true
+        type: string
+      vm-release:
+        required: true
+        type: string
+      vm-arch:
+        required: true
+        type: string
+
+env:
+  MYTOKEN : ${{ secrets.MYTOKEN }}
+
+jobs:
+  test:
+    name: test
+    runs-on: ${{ inputs.runs-on }}
+    defaults:
+      run:
+        shell: bash
+
+    strategy:
+      fail-fast: false
+      matrix:
+        test-name:
+          - 'jdk/tier1 part 1'
+          - 'jdk/tier1 part 2'
+          - 'jdk/tier1 part 3'
+          - 'langtools/tier1'
+          - 'hs/tier1 common'
+          - 'hs/tier1 compiler part 1'
+          - 'hs/tier1 compiler part 2'
+          - 'hs/tier1 compiler part 3'
+          - 'hs/tier1 compiler not-xcomp'
+          - 'hs/tier1 gc'
+          - 'hs/tier1 runtime'
+          - 'hs/tier1 serviceability'
+          - 'lib-test/tier1'
+
+        include:
+          - test-name: 'jdk/tier1 part 1'
+            test-suite: 'test/jdk/:tier1_part1'
+
+          - test-name: 'jdk/tier1 part 2'
+            test-suite: 'test/jdk/:tier1_part2'
+
+          - test-name: 'jdk/tier1 part 3'
+            test-suite: 'test/jdk/:tier1_part3'
+
+          - test-name: 'langtools/tier1'
+            test-suite: 'test/langtools/:tier1'
+
+          - test-name: 'hs/tier1 common'
+            test-suite: 'test/hotspot/jtreg/:tier1_common'
+            debug-suffix: -debug
+
+          - test-name: 'hs/tier1 compiler part 1'
+            test-suite: 'test/hotspot/jtreg/:tier1_compiler_1'
+            debug-suffix: -debug
+
+          - test-name: 'hs/tier1 compiler part 2'
+            test-suite: 'test/hotspot/jtreg/:tier1_compiler_2'
+            debug-suffix: -debug
+
+          - test-name: 'hs/tier1 compiler part 3'
+            test-suite: 'test/hotspot/jtreg/:tier1_compiler_3'
+            debug-suffix: -debug
+
+          - test-name: 'hs/tier1 compiler not-xcomp'
+            test-suite: 'test/hotspot/jtreg/:tier1_compiler_not_xcomp'
+            debug-suffix: -debug
+
+          - test-name: 'hs/tier1 gc'
+            test-suite: 'test/hotspot/jtreg/:tier1_gc'
+            debug-suffix: -debug
+
+          - test-name: 'hs/tier1 runtime'
+            test-suite: 'test/hotspot/jtreg/:tier1_runtime'
+            debug-suffix: -debug
+
+          - test-name: 'hs/tier1 serviceability'
+            test-suite: 'test/hotspot/jtreg/:tier1_serviceability'
+            debug-suffix: -debug
+
+          - test-name: 'lib-test/tier1'
+            test-suite: 'test/lib-test/:tier1'
+            debug-suffix: -debug
+
+    steps:
+      - name: Setup Host for VM
+        run: |
+          echo "Starting storage:"
+          sudo df -h
+          echo "Removing Android SDKs and Tools"
+          sudo rm -rf /usr/local/lib/android
+          echo "Reduce swappiness"
+          sudo sysctl vm.swappiness=10
+          echo "Available storage:"
+          sudo df -h
+
+      - name: 'Checkout the JDK source'
+        uses: actions/checkout@v4
+
+      - name: 'Set the BootJDK path'
+        id: bootjdk
+        run: echo 'path=/usr/local/openjdk17' >> $GITHUB_OUTPUT
+
+      - name: 'Get JTReg'
+        id: jtreg
+        uses: ./.github/actions/get-jtreg
+
+      - name: 'Get bundles'
+        id: bundles
+        uses: ./.github/actions/get-bundles
+        with:
+          platform: ${{ inputs.platform }}
+          debug-suffix: ${{ matrix.debug-suffix }}
+
+      - name: 'Set PATH'
+        id: path
+        run: |
+          echo "value=$PATH" >> $GITHUB_OUTPUT
+
+      - name: 'Run Tests in FreeBSD VM'
+        id: run-tests
+        uses: vmactions/freebsd-vm@v1
+        with:
+          release: ${{ inputs.vm-release }}
+          arch: ${{ inputs.vm-arch }}
+          mem: 11264
+          cpu: 4
+          envs: 'MYTOKEN'
+          usesh: true
+          prepare: |
+            mount -t procfs proc /proc
+            pkg install -y openjdk17 gnugrep gtar zip unzip cups bash gmake dwz libiconv harfbuzz lcms2 png giflib jpeg-turbo gsed
+          run: >
+            gmake test-prebuilt
+            SED=/usr/local/bin/gsed
+            GREP=/usr/local/bin/ggrep
+            TEST='${{ matrix.test-suite }}'
+            BOOT_JDK=${{ steps.bootjdk.outputs.path }}
+            JT_HOME=${{ steps.jtreg.outputs.path }}
+            JDK_IMAGE_DIR=${{ steps.bundles.outputs.jdk-path }}
+            SYMBOLS_IMAGE_DIR=${{ steps.bundles.outputs.symbols-path }}
+            TEST_IMAGE_DIR=${{ steps.bundles.outputs.tests-path }}
+            JTREG='JAVA_OPTIONS=-XX:-CreateCoredumpOnCrash;VERBOSE=fail,error,time;KEYWORDS=!headful'
+            && bash ./.github/scripts/gen-test-summary.sh "$GITHUB_STEP_SUMMARY" "$GITHUB_OUTPUT"
+
+      - name: 'Check Memory, Swap and Disk Usage'
+        run: |
+          echo "Memory and swap:"
+          sudo free -h
+          echo
+          echo "Available storage:"
+          sudo df -h
+
+        # This is a separate step, since if the markdown from a step gets bigger than
+        # 1024 kB it is skipped, but then the short summary above is still generated
+      - name: 'Generate test report'
+        run: bash ./.github/scripts/gen-test-results.sh "$GITHUB_STEP_SUMMARY"
+        if: always()
+
+      - name: 'Package test results'
+        id: package
+        run: |
+          # Package test-results and relevant parts of test-support
+          mkdir results
+
+          if [[ -d build/run-test-prebuilt/test-results ]]; then
+            cd build/run-test-prebuilt/test-results/
+            zip -r -9 "$GITHUB_WORKSPACE/results/test-results.zip" .
+            cd $GITHUB_WORKSPACE
+          else
+            echo '::warning ::Missing test-results directory'
+          fi
+
+          if [[ -d build/run-test-prebuilt/test-support ]]; then
+            cd build/run-test-prebuilt/test-support/
+            zip -r -9 "$GITHUB_WORKSPACE/results/test-support.zip" . -i *.jtr -i */hs_err*.log -i */replay*.log
+            cd $GITHUB_WORKSPACE
+          else
+            echo '::warning ::Missing test-support directory'
+          fi
+
+          artifact_name="results-${{ inputs.platform }}-$(echo ${{ matrix.test-name }} | tr '/ ' '__')"
+          echo "artifact-name=$artifact_name" >> $GITHUB_OUTPUT
+        if: always()
+
+      - name: 'Upload test results'
+        uses: actions/upload-artifact@v4
+        with:
+          path: results
+          name: ${{ steps.package.outputs.artifact-name }}
+        if: always()
+
+        # This is the best way I found to abort the job with an error message
+      - name: 'Notify about test failures'
+        uses: actions/github-script@v7
+        with:
+          script: core.setFailed('${{ steps.run-tests.outputs.error-message }}')
+        if: steps.run-tests.outputs.failure == 'true'
