@@ -1,0 +1,179 @@
+#
+# Copyright (c) 2025, Oracle and/or its affiliates. All rights reserved.
+# DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+#
+# This code is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License version 2 only, as
+# published by the Free Software Foundation.  Oracle designates this
+# particular file as subject to the "Classpath" exception as provided
+# by Oracle in the LICENSE file that accompanied this code.
+#
+# This code is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+# FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# version 2 for more details (a copy is included in the LICENSE file that
+# accompanied this code).
+#
+# You should have received a copy of the GNU General Public License version
+# 2 along with this work; if not, write to the Free Software Foundation,
+# Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+# Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
+# or visit www.oracle.com if you need additional information or have any
+# questions.
+#
+
+name: 'Build (FreeBSD)'
+
+on:
+  workflow_call:
+    inputs:
+      platform:
+        required: true
+        type: string
+      runs-on:
+        required: true
+        type: string
+      vm-arch:
+        required: true
+        type: string
+      vm-release:
+        required: true
+        type: string
+      extra-conf-options:
+        required: false
+        type: string
+      make-target:
+        required: false
+        type: string
+        default: 'product-bundles test-bundles'
+      debug-levels:
+        required: false
+        type: string
+        default: '[ "debug", "release" ]'
+      configure-arguments:
+        required: false
+        type: string
+      make-arguments:
+        required: false
+        type: string
+
+jobs:
+  build-freebsd:
+    name: build
+    runs-on: ${{ inputs.runs-on }}
+
+    env:
+      MYTOKEN : ${{ secrets.MYTOKEN }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        debug-level: ${{ fromJSON(inputs.debug-levels) }}
+        include:
+          - debug-level: debug
+            flags: --with-debug-level=fastdebug
+            suffix: -debug
+
+    steps:
+      - name: Setup Host for VM
+        run: |
+          echo "Starting storage:"
+          sudo df -h
+          echo "Removing Android SDKs and Tools"
+          sudo rm -rf /usr/local/lib/android
+          echo "Reduce swappiness"
+          sudo sysctl vm.swappiness=10
+          echo "Available storage:"
+          sudo df -h
+
+      - name: 'Checkout the JDK source'
+        uses: actions/checkout@v4
+
+      - name: 'Set the BootJDK path'
+        id: bootjdk
+        run: echo 'path=/usr/local/openjdk17' >> $GITHUB_OUTPUT
+
+      - name: 'Get JTReg'
+        id: jtreg
+        uses: ./.github/actions/get-jtreg
+
+      - name: 'Get GTest'
+        id: gtest
+        uses: ./.github/actions/get-gtest
+
+      - name: 'Start FreeBSD VM'
+        uses: vmactions/freebsd-vm@v1
+        with:
+          release: ${{ inputs.vm-release }}
+          arch: ${{ inputs.vm-arch }}
+          mem: 11264
+          cpu: 4
+          envs: 'MYTOKEN'
+          usesh: true
+          copyback: false
+          prepare: |
+            mount -t procfs proc /proc
+            echo 'cd $GITHUB_WORKSPACE' >> ~/.vmenv
+
+      - name: 'Install toolchain and dependencies in VM'
+        shell: freebsd {0}
+        run: >
+          pkg install -y openjdk17 autoconf automake pkgconf gtar zip unzip cups bash gmake dwz libiconv harfbuzz lcms2 png giflib jpeg-turbo gsed
+
+      - name: 'Configure in VM'
+        shell: freebsd {0}
+        run: >
+          . ~/.vmenv &&
+          bash configure
+          SED=/usr/local/bin/gsed
+          --with-conf-name=${{ inputs.platform }}
+          ${{ matrix.flags }}
+          --with-version-opt=${GITHUB_ACTOR}-${GITHUB_SHA}
+          --with-boot-jdk=${{ steps.bootjdk.outputs.path }}
+          --with-jtreg=${{ steps.jtreg.outputs.path }}
+          --with-gtest=${{ steps.gtest.outputs.path }}
+          --with-zlib=system
+          --with-stdc++lib=dynamic
+          --with-toolchain-type=clang
+          --with-fontconfig=/usr/local
+          --with-cups=/usr/local
+          --with-freetype=system
+          --with-zlib=system
+          --with-libpng=system
+          --with-libjpeg=system
+          --with-lcms=system
+          --with-harfbuzz=system
+          --with-giflib=system
+          --with-giflib-include=/usr/local/include
+          --with-giflib-lib=/usr/local/lib
+          --with-alsa=/usr/local
+          --x-includes=/usr/local/include
+          --x-libraries=/usr/local/lib
+          ${{ inputs.extra-conf-options }} ${{ inputs.configure-arguments }} || (
+          echo "Dumping config.log:" &&
+          cat config.log &&
+          exit 1)
+
+      - name: 'Build In VM'
+        id: build
+        uses: ./.github/actions/do-build-vm
+        with:
+          make-target: '${{ inputs.make-target }} ${{ inputs.make-arguments }}'
+          platform: ${{ inputs.platform }}
+          vm-name: 'freebsd'
+          debug-suffix: '${{ matrix.suffix }}'
+
+      - name: 'Check Memory, Swap and Disk Usage'
+        run: |
+          echo "Memory and swap:"
+          sudo free -h
+          echo
+          echo "Available storage:"
+          sudo df -h
+
+      - name: 'Upload bundles'
+        uses: ./.github/actions/upload-bundles
+        with:
+          platform: ${{ inputs.platform }}
+          debug-suffix: '${{ matrix.suffix }}'

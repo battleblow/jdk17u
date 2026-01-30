@@ -26,6 +26,9 @@
 name: 'OpenJDK GHA Sanity Checks'
 
 on:
+  pull_request:
+    branches:
+      - bsd-port
   push:
     branches-ignore:
       - master
@@ -35,7 +38,7 @@ on:
       platforms:
         description: 'Platform(s) to execute on (comma separated, e.g. "linux-x64, macos, aarch64")'
         required: true
-        default: 'linux-x64, linux-x86-hs, linux-x64-variants, linux-cross-compile, macos-x64, macos-aarch64, windows-x64, windows-aarch64'
+        default: 'linux-x64, linux-x86-hs, linux-x64-variants, linux-cross-compile, macos-x64, macos-aarch64, windows-x64, windows-aarch64, openbsd-x64, freebsd-x64'
       configure-arguments:
         description: 'Additional configure arguments'
         required: false
@@ -65,6 +68,8 @@ jobs:
       macos-aarch64: ${{ steps.include.outputs.macos-aarch64 }}
       windows-x64: ${{ steps.include.outputs.windows-x64 }}
       windows-aarch64: ${{ steps.include.outputs.windows-aarch64 }}
+      openbsd-x64: ${{ steps.include.outputs.openbsd-x64 }}
+      freebsd-x64: ${{ steps.include.outputs.freebsd-x64 }}
 
     steps:
       - name: 'Checkout the scripts'
@@ -128,6 +133,8 @@ jobs:
           echo "macos-aarch64=$(check_platform macos-aarch64 macos aarch64)" >> $GITHUB_OUTPUT
           echo "windows-x64=$(check_platform windows-x64 windows x64)" >> $GITHUB_OUTPUT
           echo "windows-aarch64=$(check_platform windows-aarch64 windows aarch64)" >> $GITHUB_OUTPUT
+          echo "openbsd-x64=$(check_platform openbsd-x64 openbsd x64)" >> $GITHUB_OUTPUT
+          echo "freebsd-x64=$(check_platform freebsd-x64 freebsd x64)" >> $GITHUB_OUTPUT
 
   ###
   ### Build jobs
@@ -279,6 +286,32 @@ jobs:
       make-arguments: ${{ github.event.inputs.make-arguments }}
     if: needs.prepare.outputs.windows-aarch64 == 'true'
 
+  build-openbsd-x64:
+    name: openbsd-x64
+    needs: prepare
+    uses: ./.github/workflows/build-openbsd.yml
+    with:
+      platform: openbsd-x64
+      runs-on: ubuntu-24.04
+      vm-arch: 'x86_64'
+      vm-release: "7.8"
+      configure-arguments: ${{ github.event.inputs.configure-arguments }}
+      make-arguments: ${{ github.event.inputs.make-arguments }}
+    if: needs.prepare.outputs.openbsd-x64 == 'true'
+
+  build-freebsd-x64:
+    name: freebsd-x64
+    needs: prepare
+    uses: ./.github/workflows/build-freebsd.yml
+    with:
+      platform: freebsd-x64
+      runs-on: ubuntu-24.04
+      vm-arch: 'x86_64'
+      vm-release: "14.3"
+      configure-arguments: ${{ github.event.inputs.configure-arguments }}
+      make-arguments: ${{ github.event.inputs.make-arguments }}
+    if: needs.prepare.outputs.freebsd-x64 == 'true'
+
   ###
   ### Test jobs
   ###
@@ -303,6 +336,30 @@ jobs:
       bootjdk-platform: macos-aarch64
       runs-on: macos-15
       xcode-toolset-version: '16.4'
+
+  test-openbsd-x64:
+    name: openbsd-x64
+    needs:
+      - prepare
+      - build-openbsd-x64
+    uses: ./.github/workflows/test-openbsd.yml
+    with:
+      platform: openbsd-x64
+      runs-on: ubuntu-24.04
+      vm-release: 7.8
+      vm-arch: x86_64
+
+  test-freebsd-x64:
+    name: freebsd-x64
+    needs:
+      - prepare
+      - build-freebsd-x64
+    uses: ./.github/workflows/test-freebsd.yml
+    with:
+      platform: freebsd-x64
+      runs-on: ubuntu-24.04
+      vm-release: 14.3
+      vm-arch: x86_64
 
   test-windows-x64:
     name: windows-x64
