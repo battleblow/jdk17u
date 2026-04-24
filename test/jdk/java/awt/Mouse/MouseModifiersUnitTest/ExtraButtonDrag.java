@@ -113,7 +113,7 @@ public class ExtraButtonDrag {
             // XToolkit: extra buttons should report MOVED events only
             // WToolkit: extra buttons should report DRAGGED events only
             if (i > 2) { // extra buttons only
-                if (OS_NAME.equals("Linux")) {
+                if (OS_NAME.equals("Linux") || OS_NAME.endsWith("BSD")) {
                     if (!moved || dragged) {
                         throw new RuntimeException("Test failed." + OS_NAME
                             + " Button = " + (i + 1) + " moved = " + moved
