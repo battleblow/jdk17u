@@ -296,7 +296,7 @@ jobs:
       platform: openbsd-x64
       runs-on: ubuntu-24.04
       vm-arch: 'x86_64'
-      vm-release: "7.8"
+      vm-release: '7.9'
       configure-arguments: ${{ github.event.inputs.configure-arguments }}
       make-arguments: ${{ github.event.inputs.make-arguments }}
     if: needs.prepare.outputs.openbsd-x64 == 'true'
@@ -348,7 +348,7 @@ jobs:
     with:
       platform: openbsd-x64
       runs-on: ubuntu-24.04
-      vm-release: 7.8
+      vm-release: 7.9
       vm-arch: x86_64
 
   test-freebsd-x64:
