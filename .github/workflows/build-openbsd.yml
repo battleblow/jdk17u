@@ -104,7 +104,7 @@ jobs:
 
       - name: 'Restore Cached VM Packages'
         id: vm-packages-cache
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v5
         with:
           path: obsd-pkg-cache
           key: packages-${{ inputs.platform }}-${{ inputs.vm-release }}-${{ inputs.vm-arch }}-${{ hashFiles('./obsd-pkg-cache/*.tgz') }}
@@ -183,7 +183,7 @@ jobs:
           sudo df -h
 
       - name: 'Save VM Packages'
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         with:
           path: obsd-pkg-cache
           key: packages-${{ inputs.platform }}-${{ inputs.vm-release }}-${{ inputs.vm-arch }}-${{ hashFiles('./obsd-pkg-cache/*.tgz') }}
