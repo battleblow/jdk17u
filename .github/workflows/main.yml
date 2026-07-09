@@ -309,7 +309,7 @@ jobs:
       platform: freebsd-x64
       runs-on: ubuntu-24.04
       vm-arch: 'x86_64'
-      vm-release: "14.3"
+      vm-release: "14.4"
       configure-arguments: ${{ github.event.inputs.configure-arguments }}
       make-arguments: ${{ github.event.inputs.make-arguments }}
     if: needs.prepare.outputs.freebsd-x64 == 'true'
@@ -360,7 +360,7 @@ jobs:
     with:
       platform: freebsd-x64
       runs-on: ubuntu-24.04
-      vm-release: 14.3
+      vm-release: 14.4
       vm-arch: x86_64
 
   test-windows-x64:
