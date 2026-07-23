@@ -114,7 +114,7 @@ jobs:
         with:
           release: ${{ inputs.vm-release }}
           arch: ${{ inputs.vm-arch }}
-          mem: 11264
+          mem: 12288
           cpu: 4
           envs: 'MYTOKEN'
           usesh: true
