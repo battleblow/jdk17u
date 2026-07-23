@@ -1236,6 +1236,10 @@ define SetupNativeCompilationBody
                 ifeq ($(OPENJDK_TARGET_OS_ENV), bsd.netbsd)
 		  /usr/sbin/paxctl +m $$@
                 endif
+                ifeq ($(OPENJDK_TARGET_OS_ENV)+$$($1_TYPE), bsd.freebsd+EXECUTABLE)
+				$$(call ExecuteWithLog, $$($1_OBJECT_DIR)/$$($1_SAFE_NAME)_elfctl, \
+				  $(ELFCTL) -e +wxneeded $$($1_TARGET));
+                endif
                 # On macosx, optionally run codesign on every binary.
                 # Remove signature explicitly first to avoid warnings if the linker
                 # added a default adhoc signature.
