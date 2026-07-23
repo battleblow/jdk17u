@@ -113,7 +113,7 @@ static int prepare(JNIEnv* jni) {
 /** Agent algorithm. */
 static void JNICALL
 agentProc(jvmtiEnv* jvmti, JNIEnv* jni, void* arg) {
-    jint dummy;
+    jint dummy = 0;
 
     if (!nsk_jvmti_waitForSync(timeout))
         return;
