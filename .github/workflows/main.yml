@@ -59,6 +59,9 @@ jobs:
   prepare:
     name: 'Prepare the run'
     runs-on: ubuntu-22.04
+    env:
+      # List of platforms to exclude by default
+      EXCLUDED_PLATFORMS: 'linux-x64,linux-x86-hs,linux-x64-variants,linux-cross-compile,macos-x64,macos-aarch64,windows-x64,windows-aarch64'
     outputs:
       linux-x64: ${{ steps.include.outputs.linux-x64 }}
       linux-x86-hs: ${{ steps.include.outputs.linux-x86-hs }}
@@ -93,6 +96,10 @@ jobs:
           # Returns 'true' if the input platform list matches any of the platform monikers given as argument,
           # 'false' otherwise.
           # arg $1: platform name or names to look for
+
+          # Convert EXCLUDED_PLATFORMS from a comma-separated string to an array
+          IFS=',' read -r -a excluded_array <<< "$EXCLUDED_PLATFORMS"
+
           function check_platform() {
             if [[ $GITHUB_EVENT_NAME == workflow_dispatch ]]; then
               input='${{ github.event.inputs.platforms }}'
@@ -109,7 +116,13 @@ jobs:
 
             normalized_input="$(echo ,$input, | tr -d ' ')"
             if [[ "$normalized_input" == ",," ]]; then
-              # For an empty input, assume all platforms should run
+              # For an empty input, assume all platforms should run, except those in the EXCLUDED_PLATFORMS list
+              for excluded in "${excluded_array[@]}"; do
+                if [[ "$1" == "$excluded" ]]; then
+                  echo 'false'
+                  return
+                fi
+              done
               echo 'true'
               return
             else
@@ -117,6 +130,14 @@ jobs:
               for part in $* ; do
                 if echo "$normalized_input" | grep -q -e ",$part," ; then
                   echo 'true'
+                  return
+                fi
+              done
+
+              # If not explicitly included, check against the EXCLUDED_PLATFORMS list
+              for excluded in "${excluded_array[@]}"; do
+                if [[ "$1" == "$excluded" ]]; then
+                  echo 'false'
                   return
                 fi
               done
