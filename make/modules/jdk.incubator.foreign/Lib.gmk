@@ -35,6 +35,20 @@ ifeq ($(call isTargetOs, linux), true)
       LIBS := $(LIBCXX) -lc -lm -ldl, \
   ))
 
+else ifeq ($(call isTargetOs, bsd), true)
+
+  ifeq ($(OPENJDK_TARGET_OS_ENV), bsd.openbsd)
+    BSDLIBC= -lc
+  endif
+
+  $(eval $(call SetupJdkLibrary, BUILD_SYSLOOKUPLIB, \
+      NAME := syslookup, \
+      CFLAGS := $(CFLAGS_JDKLIB), \
+      CXXFLAGS := $(CXXFLAGS_JDKLIB), \
+      LDFLAGS := $(LDFLAGS_JDKLIB) -Wl$(COMMA)--no-as-needed, \
+      LIBS := $(LIBCXX) $(LIBDL) $(LIBM) $(BSDLIBC), \
+  ))
+
 else ifeq ($(call isTargetOs, windows), false)
 
   $(eval $(call SetupJdkLibrary, BUILD_SYSLOOKUPLIB, \
