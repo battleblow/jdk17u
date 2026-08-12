@@ -137,7 +137,8 @@ void MallocHeader::check_block_integrity() const {
   // we test the smallest alignment we know.
   // Should we ever start using std::max_align_t, this would be one place to
   // fix up.
-  if (!is_aligned(this, sizeof(uint64_t))) {
+  volatile uintptr_t ptr = (uintptr_t)this;
+  if (!is_aligned(ptr, sizeof(uint64_t))) {
     print_block_on_error(tty, (address)this);
     fatal(PREFIX "Block at " PTR_FORMAT ": block address is unaligned", p2i(this));
   }
